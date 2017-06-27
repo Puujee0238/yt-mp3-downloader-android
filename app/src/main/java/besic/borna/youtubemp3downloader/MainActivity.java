@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -21,12 +22,12 @@ public class MainActivity extends Activity {
     Handler handler;
     ProgressDialog progressDialog;
 
+    private final int STORAGE_PERMISSION_REQUEST = 42;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        requestPermissions();
 
         tv = (TextView) findViewById(R.id.label);
         handler = new Handler(getMainLooper());
@@ -37,19 +38,8 @@ public class MainActivity extends Activity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setCancelable(true);
 
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        String type = intent.getType();
-
-        if (Intent.ACTION_SEND.equals(action) && type != null) {
-            if ("text/plain".equals(type)) {
-                String youtubeUrlString = intent.getStringExtra(Intent.EXTRA_TEXT);
-                String[] urlTokens = youtubeUrlString.split("/");
-                String videoId = urlTokens[urlTokens.length-1];
-                if (youtubeUrlString != null) {
-                    download(checkBaseUrl+videoId);
-                }
-            }
+        if(!requestPermissions()){
+            handleIntent();
         }
     }
 
@@ -103,16 +93,48 @@ public class MainActivity extends Activity {
         checkTask.execute(url);
     }
 
-    void requestPermissions(){
+    void handleIntent(){
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type)) {
+                String youtubeUrlString = intent.getStringExtra(Intent.EXTRA_TEXT);
+                String[] urlTokens = youtubeUrlString.split("/");
+                String videoId = urlTokens[urlTokens.length-1];
+                if (youtubeUrlString != null) {
+                    download(checkBaseUrl+videoId);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case STORAGE_PERMISSION_REQUEST: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) { // permission granted
+
+                    handleIntent();
+
+                } else { // permission denied
+                    this.finish();
+                }
+                return;
+            }
+        }
+    }
+
+    private boolean requestPermissions(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) { // explanation
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_REQUEST);
+            return true;
 
-            } else { // no explanation
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 42);
-            }
         }
+        return false;
     }
 }
