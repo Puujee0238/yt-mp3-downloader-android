@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">YouTube MP3 Downloader</string>
+    <string name="converting">Converting to MP3... Download will start shortly.</string>
+</resources>
