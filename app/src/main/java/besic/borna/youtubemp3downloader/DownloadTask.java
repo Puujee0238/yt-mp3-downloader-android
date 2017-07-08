@@ -3,7 +3,6 @@ package besic.borna.youtubemp3downloader;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.PowerManager;
@@ -16,9 +15,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import static android.os.Process.killProcess;
-import static android.os.Process.myPid;
 
 public class DownloadTask extends AsyncTask<String, Integer, String> {
 
@@ -116,8 +112,10 @@ public class DownloadTask extends AsyncTask<String, Integer, String> {
     protected void onPostExecute(String result) {
         wakeLock.release();
         progressDialog.dismiss();
-        if (result != null)     Toast.makeText(context,"Download error: "+result, Toast.LENGTH_LONG).show();
-        else                    Toast.makeText(context,"Download successful!", Toast.LENGTH_SHORT).show();
+        if (result != null)
+            Toast.makeText(context,"Download error: "+result, Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(context,"Download successful!", Toast.LENGTH_SHORT).show();
 
         this.activity.finish();
     }

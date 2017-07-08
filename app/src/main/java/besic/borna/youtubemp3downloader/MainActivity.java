@@ -8,11 +8,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.widget.TextView;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends Activity {
 
@@ -44,7 +45,6 @@ public class MainActivity extends Activity {
     }
 
     private void download(final String url){
-        Log.w("DOWNLOAD", url);
         CheckTask checkTask = new CheckTask(new CheckCallback() {
             @Override
             public void done(String status) {
@@ -101,8 +101,7 @@ public class MainActivity extends Activity {
         if (Intent.ACTION_SEND.equals(action) && type != null) {
             if ("text/plain".equals(type)) {
                 String youtubeUrlString = intent.getStringExtra(Intent.EXTRA_TEXT);
-                String[] urlTokens = youtubeUrlString.split("/");
-                String videoId = urlTokens[urlTokens.length-1];
+                String videoId = extractIdFromUrl(youtubeUrlString);
                 if (youtubeUrlString != null) {
                     download(checkBaseUrl+videoId);
                 }
@@ -136,5 +135,23 @@ public class MainActivity extends Activity {
 
         }
         return false;
+    }
+
+    private String extractIdFromUrl(String urlString){
+
+        Pattern pattern1 = Pattern.compile("youtube\\.com/watch\\?v\\=(.{11})");
+        Pattern pattern2 = Pattern.compile("youtu\\.be/(.{11})");
+
+        Matcher matcher1 = pattern1.matcher(urlString);
+        Matcher matcher2 = pattern2.matcher(urlString);
+
+        if(matcher1.find()){
+            return matcher1.group(1);
+        }
+        else if(matcher2.find()){
+            return matcher2.group(1);
+        }
+
+        return null;
     }
 }

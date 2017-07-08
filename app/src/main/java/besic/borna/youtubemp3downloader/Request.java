@@ -7,10 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-/**
- * Created by Borna on 27.6.2017..
- */
-
 public class Request {
 
     public static String get(String urlString){

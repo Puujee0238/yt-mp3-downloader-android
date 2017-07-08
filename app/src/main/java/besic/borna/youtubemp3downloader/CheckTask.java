@@ -1,12 +1,6 @@
 package besic.borna.youtubemp3downloader;
 
 import android.os.AsyncTask;
-import android.telecom.Call;
-import android.util.Log;
-
-/**
- * Created by Borna on 27.6.2017..
- */
 
 public class CheckTask extends AsyncTask<String, Void, String>{
 
